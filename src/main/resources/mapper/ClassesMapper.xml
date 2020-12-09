@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.cykj.mapper.ClassesMapper">
+    <select id="findAllClasses" resultType="Classes" resultMap="users">
+      select * from t_classes
+    </select>
+
+    <select id="selectUserByClasses" parameterType="java.lang.Integer" resultType="UserInfo">
+      select * from t_user where classid=#{classId}
+    </select>
+
+    <resultMap type="Classes" id="users">
+        <id column="classid" property="classId"></id>
+        <result column="classname" property="className"></result>
+        <!--一对多-->
+        <collection column="classid" property="userList" ofType="UserInfo" select="selectUserByClasses">
+            <id column="id" property="id"></id>
+            <result column="username" property="userName"></result>
+            <result column="password" property="password"></result>
+            <result column="age" property="age"></result>
+        </collection>
+    </resultMap>
+
+
+
+    <select id="findAllUser" resultType="UserInfo" resultMap="classMap">
+      select * from t_user
+    </select>
+
+    <select id="selectClassesByUser" parameterType="java.lang.Integer" resultType="Classes">
+      select * from t_classes where classid = #{classId}
+    </select>
+
+    <resultMap id="classMap" type="UserInfo">
+        <id column="id" property="id"></id>
+        <result column="username" property="userName"></result>
+        <result column="password" property="password"></result>
+        <result column="age" property="age"></result>
+        <!--多对一-->
+        <association property="classesInfo" column="classId" javaType="Classes" select="selectClassesByUser">
+            <id column="classid" property="classId"></id>
+            <result column="classname" property="className"></result>
+        </association>
+    </resultMap>
+
+    <!--一对多-->
+    <select id="findUserByJoin" resultMap="OneToMany">
+      select t1.*, t2.* from t_classes t2 left join t_user t1 on t1.classid = t2.classid
+    </select>
+
+    <resultMap id="OneToMany" type="Classes">
+        <id column="classid" property="classId"></id>
+        <result column="classname" property="className"></result>
+        <collection property="userList" ofType="UserInfo">
+            <id column="id" property="id"></id>
+            <result column="username" property="userName"></result>
+            <result column="password" property="password"></result>
+            <result column="age" property="age"></result>
+        </collection>
+    </resultMap>
+
+    <!--多对一-->
+    <select id="findUser" resultMap="manyToOne">
+      select t1.*, t2.* from t_user t1 left join t_classes t2 on t1.classid = t2.classid
+    </select>
+
+    <resultMap id="manyToOne" type="UserInfo">
+        <id column="id" property="id"></id>
+        <result column="username" property="userName"></result>
+        <result column="password" property="password"></result>
+        <result column="age" property="age"></result>
+        <association property="classesInfo" javaType="Classes">
+            <id column="classid" property="classId"></id>
+            <result column="classname" property="className"></result>
+        </association>
+    </resultMap>
+</mapper>

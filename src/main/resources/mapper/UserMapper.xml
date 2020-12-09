@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.cykj.mapper.UserMapper">
+
+    <insert id="addUser" parameterType="UserInfo">
+      <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+        select user_seq.nextval from dual
+      </selectKey>
+      insert into t_user(id, username, password, age) values (#{id}, #{userName}, #{password}, #{age})
+    </insert>
+
+    <delete id="deleteUserById" parameterType="UserInfo">
+      delete from t_user where id = #{id}
+    </delete>
+
+    <!--prefix:前缀覆盖并增加其内容
+    suffix:后缀覆盖并增加其内容
+    prefixOverrides:前缀判断的条件
+    suffxOverrides:后缀判断的条件-->
+    <update id="updateUser" parameterType="UserInfo">
+      update t_user
+      <trim prefix="set" prefixOverrides=",">
+          username = #{userName}, password = #{password}, age = #{age}
+      </trim>
+      <where>
+          <if test="id != null">
+              id = #{id}
+          </if>
+      </where>
+    </update>
+
+    <resultMap type="UserInfo" id="userMap">
+        <result property="id" column="id"></result>
+        <result property="name" column="username"></result>
+    </resultMap>
+
+    <select id="findAll" resultMap="userMap">
+      select * from t_user
+    </select>
+
+    <select id="findIn" parameterType="list" resultType="UserInfo">
+        select * from t_user where id in
+        <foreach collection="list" item="i" open="(" separator="," close=")">
+          #{i}
+        </foreach>
+    </select>
+</mapper>
